@@ -22,6 +22,7 @@
 - **Resistors** (220Ω or 330Ω - these protect your LED)
 - **Jumper wires** (male-to-male and male-to-female)
 - **Power supply** for your Raspberry Pi
+  -. **Optional**: Elegoo MB102 breadboard power supply module + USB or 6.5–12V DC adapter
 
 ### Software
 
@@ -71,6 +72,90 @@ Row connections:
 - **Horizontal rows**: Points a-e are connected together, f-j are connected together
 - **Vertical power rails**: All points in each rail are connected
 - **Center gap**: No connection between left and right sides of a row
+
+### Powering the Breadboard with Elegoo Power Supply Module (MB102)
+
+If your Elegoo Upgraded Electronics Fun Kit includes the MB102 breadboard power supply module, you can use it to feed the breadboard's power rails with 3.3V or 5V.
+
+#### Step-by-Step MB102 Setup
+
+Important: Keep your Raspberry Pi powered off while inserting the module, changing jumpers, or making any GPIO/breadboard connections. You may power and test the module by itself, but shut the Pi down before connecting any wires between the module/breadboard and the Pi.
+
+**Step 1: Identify the MB102 Module Parts**
+
+Looking at your MB102 module, you should see:
+
+- **USB connector** (micro-USB or USB-C) - for 5V input power
+- **DC barrel jack** (round connector) - for 6.5-12V input power
+- **Power switch** (slide switch) - turns module on/off
+- **LED indicator** - lights when module is powered and on
+- **Header pins** on bottom - these plug into breadboard power rails
+- **Small jumpers** in the middle - these select 3.3V or 5V for each rail
+
+**Step 2: Understand the Pin Layout**
+
+The header pins on the bottom are arranged like this:
+
+```
+[+] [-] [+] [-]    ← These plug into breadboard power rails
+ │   │   │   │
+Left   Right
+Rail   Rail
+```
+
+The middle area has **voltage selection jumpers**:
+
+```
+Left Rail    Right Rail
+[5V] [3.3V]  [3.3V] [5V]
+ │     │      │     │
+ └─[●]─┘      └─[●]─┘    ← Jumpers (small plastic caps)
+```
+
+**Step 3: Power OFF Everything**
+
+- Raspberry Pi should be shutdown and unplugged
+- Don't plug anything into the MB102 yet
+
+**Step 4: Insert Module into Breadboard**
+
+1. Look at your breadboard - find the power rails (red + and blue/black - strips)
+2. Orient the MB102 so the header pins align with the power rails
+3. The `+` pins should go into the red rails, `-` pins into the blue/black rails
+4. Push down firmly until the pins are fully inserted
+
+**Step 5: Set Voltage Jumpers (IMPORTANT!)**
+
+1. Look for the small plastic jumpers in the middle of the module
+2. Each rail (left and right) can be set independently
+3. **For Raspberry Pi projects**: Move both jumpers to **3.3V** position
+   - This makes both power rails output 3.3V (safe for Pi GPIO)
+4. **If you need 5V** for specific components: Set one rail to 5V, keep the other at 3.3V
+
+**Step 6: Connect Power Input**
+Choose ONE method:
+
+- **USB Method**: Plug a USB cable from the module to a 5V USB charger or power bank
+- **DC Method**: Plug a 6.5-12V DC adapter into the barrel jack (7-9V recommended)
+
+**Step 7: Test the Module**
+
+1. Flip the power switch to ON
+2. The LED should light up
+3. If you have a multimeter, check voltage between + and - rails (should read ~3.3V or ~5V per your jumper setting)
+
+#### Using with Raspberry Pi
+
+- To share ground, connect one wire from a module `GND` (or the `-` rail) to a Raspberry Pi `GND` pin.
+- Do not backfeed the Pi: avoid wiring the module's `5V` or `3.3V` rails directly to the Pi's `5V`/`3.3V` header pins.
+- If you power sensors/ICs from the module, keep logic at 3.3V when interfacing with Pi GPIO, and always share a common ground.
+  -. Wire only with power off: avoid hot-plugging any GPIO connections while the Pi is on.
+
+#### Notes and Limits
+
+- Typical regulator limits: about ~700mA on 5V (variant-dependent) and ~300mA on 3.3V. The module may get warm under load.
+- Double-check orientation: If the `+`/`-` rails are swapped, remove power and rotate the module.
+- Verify with a multimeter if unsure: between `+` and `-` rails you should read ~3.3V or ~5V per your jumper setting.
 
 ## Raspberry Pi GPIO Basics
 
