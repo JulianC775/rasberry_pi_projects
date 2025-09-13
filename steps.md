@@ -1,67 +1,77 @@
-# Button-LED Circuit Build Steps
+# Button-Controlled 3-LED Cycle Project
 
-## Complete Circuit Build - Starting Row 20:
+## Complete Circuit Build - 3 LEDs + Button:
 
-### Step 1: Insert LED
+### Step 1: Insert RED LED (Left)
 
-- **LED long leg (anode)** → Row 20a
-- **LED short leg (cathode)** → Row 20b
-- **Purpose**: LED placement for control
+- **RED LED long leg (anode)** → Row 15a
+- **RED LED short leg (cathode)** → Row 15b
+- **Purpose**: Left LED - Red color
 
-### Step 2: Add LED Current-Limiting Resistor
+### Step 2: Insert GREEN LED (Center)
 
-- **330Ω resistor** → From 20c to 22c
-- **Purpose**: Limits current to protect LED from burning out
+- **GREEN LED long leg (anode)** → Row 17a
+- **GREEN LED short leg (cathode)** → Row 17b
+- **Purpose**: Center LED - Green color
 
-### Step 3: LED Power Connection (REMOVED)
+### Step 3: Insert BLUE LED (Right)
 
-- ~~Male-to-male jumper from 20e to red power rail~~
-- **REMOVED**: Pi will control LED power instead
+- **BLUE LED long leg (anode)** → Row 19a
+- **BLUE LED short leg (cathode)** → Row 19b
+- **Purpose**: Right LED - Blue color
 
-### Step 4: LED Ground Connection
+### Step 4: Add LED Resistors
 
-- **Male-to-male jumper** → From 22a to blue ground rail (any hole)
-- **Purpose**: Completes LED circuit through resistor to ground
+- **330Ω resistor** → From 15c to 16c (RED LED)
+- **330Ω resistor** → From 17c to 18c (GREEN LED)
+- **330Ω resistor** → From 19c to 20c (BLUE LED)
+- **Purpose**: Current limiting for each LED
 
-### Step 5: Insert Button
+### Step 5: LED Ground Connections
+
+- **Male-to-male jumper wire** → From 16a to blue ground rail (RED LED)
+- **Male-to-male jumper wire** → From 18a to blue ground rail (GREEN LED)
+- **Male-to-male jumper wire** → From 20a to blue ground rail (BLUE LED)
+- **Purpose**: Common ground for all LEDs
+
+### Step 6: Insert Button
 
 - **4-pin button** → Legs in 25e, 27e, 25f, 27f (spans 2 rows and center gap)
-- **Purpose**: Physical switch to control circuit
+- **Purpose**: Cycles through LEDs
 
-### Step 6: Button Power Connection
+### Step 7: Button Power Connection
 
-- **Male-to-male jumper** → From 25g to red power rail (any hole)
-- **Purpose**: Provides +3.3V to right side of button (connects to 25f internally)
+- **Male-to-male jumper wire** → From 25g to red power rail (any hole)
+- **Purpose**: Provides +3.3V to right side of button
 
-### Step 7: Button Input Wire
+### Step 8: Button Input Wire
 
-- **Male-to-male jumper** → From 24d to 25c
-- **Purpose**: Connects input circuit to left side of button (connects to 25e internally)
+- **Male-to-male jumper wire** → From 24c to 25c
+- **Purpose**: Connects input circuit to left side of button
 
-### Step 8: Pull-down Resistor
+### Step 9: Pull-down Resistor
 
-- **10kΩ resistor** → From 24d to 26d
+- **10kΩ resistor** → From 24c to 26d
 - **Purpose**: Pulls input LOW when button not pressed
 
-### Step 9: Pull-down Ground
+### Step 10: Pull-down Ground
 
-- **Male-to-male jumper** → From 26a to blue ground rail (any hole)
+- **Male-to-male jumper wire** → From 26a to blue ground rail (any hole)
 - **Purpose**: Completes pull-down resistor to ground
 
-### Step 10: Pi LED Control
+### Step 11: Pi LED Controls
 
-- **Male-to-female jumper** → From Pi GPIO18 (pin 12) to 20e
-- **Purpose**: Pi controls LED on/off
+- **Male-to-female jumper wire** → From Pi GPIO18 (pin 12) to 15e (RED LED)
+- **Male-to-female jumper wire** → From Pi GPIO24 (pin 18) to 17e (GREEN LED)
+- **Male-to-female jumper wire** → From Pi GPIO25 (pin 22) to 19e (BLUE LED)
+- **Purpose**: Pi controls each LED individually
 
-### Step 11: Pi Button Input
+### Step 12: Pi Button Input
 
-- **Male-to-female jumper** → From Pi GPIO2 (pin 3) to 24b
-- **Purpose**: Pi reads button press state
+- **Male-to-female jumper wire** → From Pi GPIO2 (pin 3) to 24c
+- **Purpose**: Pi reads button press to cycle LEDs
 
 ## Current Status:
 
-- 24d: Has jumper to 25c AND 10kΩ resistor to 26d ⚠️ **CONFLICT!**
-
-## Issues to Fix:
-
-- 24d cannot have both the jumper AND resistor - need different approach
+- All connections now use 24c as the common input point ✅
+- No conflicts - everything connects properly at 24c
