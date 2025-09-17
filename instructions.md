@@ -1,8 +1,8 @@
-# ESP32 3-LED Cycle Project
+# Raspberry Pi 3-LED Cycle Project
 
 ## Project Overview
 
-Build a 3-LED cycling system using an ESP32 microcontroller where:
+Build a 3-LED cycling system using a Raspberry Pi where:
 
 - Red LED is on by default when powered
 - Button press cycles through: Red → Green → Blue → Red
@@ -12,108 +12,159 @@ Build a 3-LED cycling system using an ESP32 microcontroller where:
 
 ### Electronics Components
 
-- **1x ESP32 Development Board** (ESP32-WROOM-32 or similar)
+- **1x Raspberry Pi** (Pi 3, Pi 4, or Pi Zero with GPIO pins)
 - **3x LEDs** (Red, Green, Blue - 5mm standard)
 - **3x 330Ω Resistors** (for LED current limiting)
 - **1x 10kΩ Resistor** (for button pull-down)
 - **1x Push Button** (momentary, 4-pin)
 - **Multiple Jumper Wires** (male-to-male, male-to-female)
 - **3x Breadboards** (connected together)
+- **MicroSD Card** (16GB+ with Raspberry Pi OS)
 
 ### Tools Needed
 
-- Computer with Arduino IDE installed
-- USB cable (typically USB-A to micro-USB or USB-C, depending on ESP32 board)
+- Computer for SSH/VNC or direct connection to Pi
+- MicroSD card reader
+- Monitor, keyboard, mouse (if not using SSH)
+- Power supply for Raspberry Pi
 
 ## Software Setup
 
-### 1. Install Arduino IDE
+### 1. Raspberry Pi OS Setup
 
-1. Download Arduino IDE from [arduino.cc](https://www.arduino.cc/en/software)
-2. Install the IDE on your computer
-3. Launch Arduino IDE
+1. Download Raspberry Pi Imager from [rpi.org](https://www.raspberrypi.org/software/)
+2. Flash Raspberry Pi OS to MicroSD card
+3. Enable SSH and/or VNC if desired
+4. Boot Raspberry Pi and complete initial setup
 
-### 2. Add ESP32 Board Support
+### 2. Install Required Python Libraries
 
-1. Open Arduino IDE
-2. Go to **File → Preferences**
-3. In "Additional Board Manager URLs" add:
-   ```
-   https://dl.espressif.com/dl/package_esp32_index.json
-   ```
-4. Go to **Tools → Board → Boards Manager**
-5. Search for "ESP32" and install "esp32 by Espressif Systems"
-6. Select your ESP32 board: **Tools → Board → ESP32 Arduino → ESP32 Dev Module**
+```bash
+# Update system packages
+sudo apt update && sudo apt upgrade -y
 
-### 3. Configure Port and Upload Settings
+# Install GPIO Zero library (usually pre-installed)
+sudo apt install python3-gpiozero python3-pip -y
 
-1. Connect ESP32 to computer via USB
-2. Select correct port: **Tools → Port → [Your ESP32 Port]**
-3. Set upload speed: **Tools → Upload Speed → 115200**
-4. Set flash frequency: **Tools → Flash Frequency → 80MHz**
+# Verify installation
+python3 -c "import gpiozero; print('GPIO Zero installed successfully!')"
+```
 
-### 4. Test ESP32 Connection
+### 3. Enable GPIO and Test
 
-1. Open **File → Examples → 01.Basics → Blink**
-2. Click **Upload** (arrow button)
-3. Built-in LED should start blinking
-4. If successful, ESP32 is ready for programming!
+```bash
+# Test GPIO functionality
+python3 -c "from gpiozero import LED; led = LED(2); led.on(); print('Built-in LED should be on')"
+```
 
-## ESP32 Pin Reference
+## Raspberry Pi GPIO Reference
 
 ### Power Pins
 
-- **3.3V** - Power output for breadboard
-- **GND** - Ground connection
-- **VIN** - External power input (optional)
+- **Pin 1 (3.3V)** - Power output for breadboard (max 50mA)
+- **Pin 2 (5V)** - 5V power output (higher current available)
+- **Pin 6 (GND)** - Ground connection
+- **Pins 9, 14, 20, 25, 30, 34, 39** - Additional ground pins
 
 ### GPIO Pins (Digital I/O)
 
-- **GPIO2** - Built-in LED (for testing)
-- **GPIO4, 5, 12-19, 21-23, 25-27, 32-33** - General purpose digital pins
-- All GPIO pins can be used for digital input/output
+- **GPIO2-27** - General purpose digital pins (3.3V logic)
+- **Pin 3 (GPIO2)** - I2C SDA (can be used for digital I/O)
+- **Pin 5 (GPIO3)** - I2C SCL (can be used for digital I/O)
+- **Pins 8, 10** - UART TX/RX (can be used for digital I/O)
 
 ### Key Features
 
-- **Wi-Fi & Bluetooth** built-in
-- **32-bit dual-core processor**
-- **Flash memory** for program storage
-- **Multiple PWM channels** for advanced LED control
-- **ADC pins** for analog input (if needed later)
+- **40-pin GPIO header** with 26 usable GPIO pins
+- **3.3V logic level** (compatible with most modern sensors)
+- **Hardware PWM** on GPIO12, 13, 18, 19
+- **SPI and I2C** interfaces available
+- **Linux-based OS** with full programming environment
 
 ## Project Structure
 
-This project is divided into two main sections:
+This project is divided into three main sections:
 
-### 1. Hardware Section (Wiring)
+### 1. Power Testing Section
+
+- Detailed in `power_testing.md`
+- Test hub distribution power system
+- Verify power to all 3 breadboards
+- LED testing on multiple boards
+
+### 2. Hardware Section (Wiring)
 
 - Detailed in `steps.md`
-- Step-by-step breadboard wiring instructions
-- Component placement and connections
-- Pin assignments and circuit diagrams
+- Step-by-step hub distribution wiring
+- Component placement across 3 breadboards
+- GPIO pin assignments and circuit diagrams
 
-### 2. Software Section (Arduino Code)
+### 3. Software Section (Python Code)
 
-- Arduino C++ code for ESP32
+- Python code using GPIO Zero library
 - LED control and button handling
 - State management for cycling through LEDs
-- Serial monitor debugging
+- Clean, readable code structure
+
+## GPIO Pin Assignments for This Project
+
+```python
+# Pin definitions for Python code
+RED_LED_PIN = 18      # Physical pin 12
+GREEN_LED_PIN = 24    # Physical pin 18
+BLUE_LED_PIN = 25     # Physical pin 22
+BUTTON_PIN = 2        # Physical pin 3
+POWER_PIN = 1         # Physical pin 1 (3.3V)
+GROUND_PIN = 6        # Physical pin 6 (GND)
+```
 
 ## Safety Notes
 
-- ESP32 operates at 3.3V logic level
-- Always disconnect power when wiring
-- Double-check connections before powering on
+- Raspberry Pi operates at 3.3V logic level
+- Always shutdown Pi properly before disconnecting power
+- GPIO pins can source/sink up to 16mA each
 - Use appropriate resistor values to protect LEDs
-- ESP32 GPIO pins can source/sink up to 12mA each
+- Never connect 5V directly to GPIO pins
+- Double-check connections before powering on
+
+## Development Environment Options
+
+### Option 1: Direct Connection
+
+- Monitor, keyboard, mouse connected to Pi
+- Use Thonny IDE (pre-installed) or nano/vim
+
+### Option 2: SSH Connection
+
+```bash
+# Connect via SSH
+ssh pi@[raspberry-pi-ip-address]
+
+# Edit files with nano
+nano led_cycle.py
+```
+
+### Option 3: VNC Connection
+
+- Enable VNC in raspi-config
+- Use VNC Viewer for graphical desktop access
 
 ## Next Steps
 
 1. Follow the detailed wiring instructions in `steps.md`
-2. Upload and test the Arduino code
-3. Troubleshoot any issues using serial monitor
-4. Expand the project with additional features if desired
+2. Create and upload the Python code
+3. Test the LED cycling functionality
+4. Use GPIO Zero's built-in debugging features
+5. Expand the project with additional features if desired
+
+## Advantages of Raspberry Pi Setup
+
+- **Full Linux environment** for advanced programming
+- **GPIO Zero library** makes hardware control simple
+- **SSH/VNC access** for remote development
+- **Expandable** - can add sensors, displays, networking
+- **Educational** - learn both hardware and software concepts
 
 ---
 
-_Ready to build your ESP32 LED cycling project!_
+_Ready to build your Raspberry Pi LED cycling project!_
