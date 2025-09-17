@@ -110,9 +110,9 @@ This project is divided into three main sections:
 
 ```python
 # Pin definitions for Python code
-RED_LED_PIN = 18      # Physical pin 12
-GREEN_LED_PIN = 24    # Physical pin 18
-BLUE_LED_PIN = 25     # Physical pin 22
+RED_LED_PIN = 4       # Physical pin 7
+GREEN_LED_PIN = 18    # Physical pin 12
+BLUE_LED_PIN = 23     # Physical pin 16
 BUTTON_PIN = 2        # Physical pin 3
 POWER_PIN = 1         # Physical pin 1 (3.3V)
 GROUND_PIN = 6        # Physical pin 6 (GND)
