@@ -141,7 +141,6 @@ def pattern_breathing():
             pwm_led.close()
         
         # Recreate the regular LED objects for other patterns
-        global led1, led2, led3, leds
         led1 = LED(LED1_PIN)
         led2 = LED(LED2_PIN)
         led3 = LED(LED3_PIN)
@@ -193,6 +192,8 @@ def pattern_knight_rider():
     """Knight Rider style sweep"""
     print("🌟 Pattern: Knight Rider")
     
+    global led1, led2, led3, leds
+    
     # First, turn off and close the regular LEDs to free up the pins
     turn_off_all()
     for led in leds:
@@ -233,7 +234,6 @@ def pattern_knight_rider():
             pwm_led.close()
         
         # Recreate the regular LED objects for other patterns
-        global led1, led2, led3, leds
         led1 = LED(LED1_PIN)
         led2 = LED(LED2_PIN)
         led3 = LED(LED3_PIN)
