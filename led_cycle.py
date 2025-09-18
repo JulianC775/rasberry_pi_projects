@@ -111,6 +111,11 @@ def pattern_breathing():
     """Breathing effect using PWM"""
     print("🌟 Pattern: Breathing Effect")
     
+    # First, turn off and close the regular LEDs to free up the pins
+    turn_off_all()
+    for led in leds:
+        led.close()
+    
     # Convert to PWM LEDs for breathing effect
     from gpiozero import PWMLED
     pwm_leds = [PWMLED(LED1_PIN), PWMLED(LED2_PIN), PWMLED(LED3_PIN)]
@@ -132,6 +137,13 @@ def pattern_breathing():
         # Clean up PWM LEDs
         for pwm_led in pwm_leds:
             pwm_led.close()
+        
+        # Recreate the regular LED objects for other patterns
+        global led1, led2, led3, leds
+        led1 = LED(LED1_PIN)
+        led2 = LED(LED2_PIN)
+        led3 = LED(LED3_PIN)
+        leds = [led1, led2, led3]
 
 def pattern_random_sparkle():
     """Random sparkling effect"""
@@ -178,22 +190,52 @@ def pattern_binary_count():
 def pattern_knight_rider():
     """Knight Rider style sweep"""
     print("🌟 Pattern: Knight Rider")
-    for _ in range(3):
-        # Sweep right
-        for i in range(len(leds)):
-            turn_off_all()
-            leds[i].on()
-            if i > 0:
-                leds[i-1].value = 0.3  # Dim trail effect
-            time.sleep(0.15)
+    
+    # First, turn off and close the regular LEDs to free up the pins
+    turn_off_all()
+    for led in leds:
+        led.close()
+    
+    # Use PWM LEDs for the dimming trail effect
+    from gpiozero import PWMLED
+    pwm_leds = [PWMLED(LED1_PIN), PWMLED(LED2_PIN), PWMLED(LED3_PIN)]
+    
+    try:
+        for _ in range(3):
+            # Sweep right
+            for i in range(len(pwm_leds)):
+                # Turn off all
+                for pwm_led in pwm_leds:
+                    pwm_led.value = 0
+                # Main LED full brightness
+                pwm_leds[i].value = 1.0
+                # Trail effect
+                if i > 0:
+                    pwm_leds[i-1].value = 0.3
+                time.sleep(0.15)
+            
+            # Sweep left
+            for i in range(len(pwm_leds)-1, -1, -1):
+                # Turn off all
+                for pwm_led in pwm_leds:
+                    pwm_led.value = 0
+                # Main LED full brightness
+                pwm_leds[i].value = 1.0
+                # Trail effect
+                if i < len(pwm_leds)-1:
+                    pwm_leds[i+1].value = 0.3
+                time.sleep(0.15)
+    finally:
+        # Clean up PWM LEDs
+        for pwm_led in pwm_leds:
+            pwm_led.close()
         
-        # Sweep left
-        for i in range(len(leds)-1, -1, -1):
-            turn_off_all()
-            leds[i].on()
-            if i < len(leds)-1:
-                leds[i+1].value = 0.3  # Dim trail effect
-            time.sleep(0.15)
+        # Recreate the regular LED objects for other patterns
+        global led1, led2, led3, leds
+        led1 = LED(LED1_PIN)
+        led2 = LED(LED2_PIN)
+        led3 = LED(LED3_PIN)
+        leds = [led1, led2, led3]
 
 def pattern_sos():
     """SOS morse code pattern"""
@@ -291,7 +333,31 @@ def cleanup():
     """Clean up GPIO resources"""
     global running
     running = False
-    turn_off_all()
+    
+    # Ensure all LEDs are turned off
+    try:
+        turn_off_all()
+    except:
+        pass  # Ignore errors if LEDs already closed
+    
+    # Close all LED objects to properly release GPIO pins
+    for led in leds:
+        try:
+            led.off()  # Extra safety - turn off before closing
+            led.close()
+        except:
+            pass  # Ignore errors if already closed
+    
+    # Final safety check - try to turn off pins directly if needed
+    try:
+        from gpiozero import LED
+        safety_leds = [LED(LED1_PIN), LED(LED2_PIN), LED(LED3_PIN)]
+        for led in safety_leds:
+            led.off()
+            led.close()
+    except:
+        pass  # Ignore if pins already released
+        
     print("🔌 All LEDs turned off - GPIO cleaned up")
 
 def show_menu():
@@ -343,4 +409,12 @@ def main():
     cleanup()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"\n❌ Unexpected error: {e}")
+        print("🔧 Performing emergency cleanup...")
+        cleanup()
+    finally:
+        # Final cleanup to ensure LEDs are off
+        cleanup()
