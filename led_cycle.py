@@ -111,6 +111,8 @@ def pattern_breathing():
     """Breathing effect using PWM"""
     print("🌟 Pattern: Breathing Effect")
     
+    global led1, led2, led3, leds
+    
     # First, turn off and close the regular LEDs to free up the pins
     turn_off_all()
     for led in leds:
