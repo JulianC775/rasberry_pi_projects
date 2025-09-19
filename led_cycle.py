@@ -6,6 +6,17 @@
 A clean, modern LED controller with only the coolest patterns.
 Automatically starts the light show when run - no menu needed!
 
+🔌 WIRING LAYOUT (Top to Bottom):
+   LED 1: Physical Pin  7 → GPIO  4 (Red)
+   LED 2: Physical Pin 11 → GPIO 17 (Green) 
+   LED 3: Physical Pin 13 → GPIO 27 (Blue)
+   LED 4: Physical Pin 15 → GPIO 22 (Yellow)
+   LED 5: Physical Pin 12 → GPIO 18 (Orange)
+   LED 6: Physical Pin 16 → GPIO 23 (Purple)
+   
+   Each LED needs a 330Ω resistor to Ground
+   All Ground connections can share common ground pins
+
 Features:
 - Knight Rider sweep with trailing effects
 - Wave propagation with phase shifts
@@ -23,7 +34,7 @@ Features:
 - 6-bit binary counter (0-63)
 - SOS morse code
 
-Hardware: 6 LEDs on GPIO 4, 17, 27, 22, 10, 9 with 330Ω resistors
+Hardware: 6 LEDs with 330Ω resistors (see wiring layout above)
 """
 
 import time
@@ -31,8 +42,8 @@ import random
 import math
 from gpiozero import LED, PWMLED
 
-# GPIO Configuration
-LED_PINS = [4, 17, 27, 22, 10, 9]  # Physical pins 7, 11, 13, 15, 19, 21
+# GPIO Configuration (matches physical pin layout top to bottom)
+LED_PINS = [4, 17, 27, 22, 18, 23]  # Physical pins 7, 11, 13, 15, 12, 16
 LED_COLORS = ["🔴 Red", "🟢 Green", "🔵 Blue", "🟡 Yellow", "🟠 Orange", "🟣 Purple"]
 
 class LEDController:
