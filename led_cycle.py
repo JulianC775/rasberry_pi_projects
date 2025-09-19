@@ -8,15 +8,22 @@ Automatically starts the light show when run - no menu needed!
 
 Features:
 - Knight Rider sweep with trailing effects
+- Wave propagation with phase shifts
 - Breathing/pulsing effects  
+- Multi-chase patterns
 - Lightning storm simulation
-- Fire flickering effect
-- Matrix-style digital rain
+- Realistic pendulum physics
 - Random sparkle bursts
+- Heartbeat rhythm simulation
+- Fire flickering effect
+- Spectrum analyzer visualization
+- Matrix-style digital rain
+- Traffic light sequences
+- Mathematical sine waves
+- 6-bit binary counter (0-63)
 - SOS morse code
-- Binary counter display
 
-Hardware: 3 LEDs on GPIO 4, 17, 27 with 330Ω resistors
+Hardware: 6 LEDs on GPIO 4, 17, 27, 22, 10, 9 with 330Ω resistors
 """
 
 import time
@@ -25,8 +32,8 @@ import math
 from gpiozero import LED, PWMLED
 
 # GPIO Configuration
-LED_PINS = [4, 17, 27]  # Physical pins 7, 11, 13
-LED_COLORS = ["🔴 Red", "🟢 Green", "🔵 Blue"]
+LED_PINS = [4, 17, 27, 22, 10, 9]  # Physical pins 7, 11, 13, 15, 19, 21
+LED_COLORS = ["🔴 Red", "🟢 Green", "🔵 Blue", "🟡 Yellow", "🟠 Orange", "🟣 Purple"]
 
 class LEDController:
     def __init__(self):
@@ -197,9 +204,9 @@ class LEDController:
             for wave in range(6):
                 self.all_off()
                 
-                # Create "falling" effect
+                # Create "falling" effect with more complex patterns
                 for i in range(len(self.leds)):
-                    if (wave + i) % 2 == 0:
+                    if (wave + i) % 3 == 0 or (wave - i) % 4 == 0:
                         self.leds[i].on()
                 
                 time.sleep(0.2)
@@ -226,19 +233,19 @@ class LEDController:
                 led.off()
             time.sleep(random.uniform(0.2, 0.6))
     
-    def binary_counter(self, max_count=8):
-        """🔢 Binary counting display"""
+    def binary_counter(self, max_count=64):
+        """🔢 Binary counting display (0-63 with 6 LEDs)"""
         print("🌟 Binary Counter")
         
         for count in range(max_count):
             self.all_off()
-            binary = format(count, '03b')  # 3-bit binary
+            binary = format(count, '06b')  # 6-bit binary
             
             for i, bit in enumerate(binary):
                 if bit == '1':
                     self.leds[i].on()
             
-            time.sleep(0.8)
+            time.sleep(0.5)
         
         self.all_off()
         time.sleep(0.5)
@@ -299,6 +306,168 @@ class LEDController:
             for led in pwm_leds:
                 led.close()
             self.leds = [LED(pin) for pin in LED_PINS]
+    
+    def wave_propagation(self, cycles=4):
+        """🌊 Wave traveling across LEDs with phase shifts"""
+        print("🌟 Wave Propagation")
+        
+        self.all_off()
+        for led in self.leds:
+            led.close()
+            
+        pwm_leds = [PWMLED(pin) for pin in LED_PINS]
+        
+        try:
+            for cycle in range(cycles):
+                for step in range(120):  # Two full wave cycles
+                    time_val = step / 20.0  # Time parameter
+                    
+                    for i, led in enumerate(pwm_leds):
+                        # Wave equation: brightness = sin(time - position)
+                        phase = time_val - (i * 0.5)  # Phase shift for each LED
+                        brightness = (math.sin(phase) + 1) / 2
+                        led.value = brightness
+                    
+                    time.sleep(0.05)
+        finally:
+            for led in pwm_leds:
+                led.close()
+            self.leds = [LED(pin) for pin in LED_PINS]
+    
+    def chase_patterns(self, cycles=3):
+        """🏃 Multiple chase patterns simultaneously"""
+        print("🌟 Multi-Chase Patterns")
+        
+        for cycle in range(cycles):
+            # Double chase - two LEDs chasing each other
+            for i in range(len(self.leds) * 2):
+                self.all_off()
+                self.leds[i % len(self.leds)].on()
+                self.leds[(i + 3) % len(self.leds)].on()
+                time.sleep(0.15)
+            
+            # Triple chase
+            for i in range(len(self.leds) * 2):
+                self.all_off()
+                self.leds[i % len(self.leds)].on()
+                self.leds[(i + 2) % len(self.leds)].on()
+                self.leds[(i + 4) % len(self.leds)].on()
+                time.sleep(0.12)
+    
+    def pendulum_swing(self, swings=8):
+        """⚖️ Realistic pendulum motion with physics"""
+        print("🌟 Pendulum Swing")
+        
+        self.all_off()
+        for led in self.leds:
+            led.close()
+            
+        pwm_leds = [PWMLED(pin) for pin in LED_PINS]
+        
+        try:
+            for swing in range(swings):
+                # Simulate pendulum physics
+                for step in range(60):
+                    # Pendulum position follows sine wave
+                    angle = math.sin(step / 10.0) * (len(pwm_leds) - 1) / 2
+                    center_pos = (len(pwm_leds) - 1) / 2
+                    led_pos = center_pos + angle
+                    
+                    # Clear all LEDs
+                    for led in pwm_leds:
+                        led.value = 0
+                    
+                    # Light up the LED closest to pendulum position
+                    main_led = int(led_pos)
+                    if 0 <= main_led < len(pwm_leds):
+                        pwm_leds[main_led].value = 1.0
+                        
+                        # Add some blur/glow to adjacent LEDs
+                        if main_led > 0:
+                            pwm_leds[main_led - 1].value = 0.3
+                        if main_led < len(pwm_leds) - 1:
+                            pwm_leds[main_led + 1].value = 0.3
+                    
+                    time.sleep(0.08)
+        finally:
+            for led in pwm_leds:
+                led.close()
+            self.leds = [LED(pin) for pin in LED_PINS]
+    
+    def heartbeat(self, beats=5):
+        """💓 Realistic heartbeat pattern"""
+        print("🌟 Heartbeat")
+        
+        self.all_off()
+        for led in self.leds:
+            led.close()
+            
+        pwm_leds = [PWMLED(pin) for pin in LED_PINS]
+        
+        try:
+            for beat in range(beats):
+                # First beat (lub)
+                for brightness in [0, 0.3, 0.8, 1.0, 0.6, 0.2, 0]:
+                    for led in pwm_leds:
+                        led.value = brightness
+                    time.sleep(0.08)
+                
+                time.sleep(0.15)  # Brief pause
+                
+                # Second beat (dub)
+                for brightness in [0, 0.4, 0.9, 0.5, 0.1, 0]:
+                    for led in pwm_leds:
+                        led.value = brightness
+                    time.sleep(0.06)
+                
+                time.sleep(0.4)  # Pause between heartbeats
+        finally:
+            for led in pwm_leds:
+                led.close()
+            self.leds = [LED(pin) for pin in LED_PINS]
+    
+    def spectrum_analyzer(self, duration=10):
+        """🎵 Fake spectrum analyzer bars"""
+        print("🌟 Spectrum Analyzer")
+        
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            self.all_off()
+            
+            # Each LED represents a frequency band
+            for i, led in enumerate(self.leds):
+                # Random "amplitude" for each frequency band
+                if random.random() < 0.3 + (i * 0.1):  # Higher frequencies more active
+                    led.on()
+            
+            time.sleep(random.uniform(0.05, 0.15))
+    
+    def traffic_light(self, cycles=3):
+        """🚦 Traffic light sequence"""
+        print("🌟 Traffic Light Sequence")
+        
+        # Assuming first 3 LEDs are Red, Yellow, Green
+        for cycle in range(cycles):
+            # Red
+            self.all_off()
+            self.leds[0].on()  # Red
+            time.sleep(2.0)
+            
+            # Red + Yellow
+            self.leds[1].on()  # Yellow
+            time.sleep(1.0)
+            
+            # Green
+            self.all_off()
+            self.leds[2].on()  # Green
+            time.sleep(2.0)
+            
+            # Yellow
+            self.all_off()
+            self.leds[1].on()  # Yellow
+            time.sleep(1.0)
+        
+        self.all_off()
 
 def main():
     """Main light show - runs automatically!"""
@@ -307,13 +476,19 @@ def main():
     # Cool patterns to cycle through
     patterns = [
         ("knight_rider", 2),
+        ("wave_propagation", 3),
         ("breathing_pulse", 2), 
+        ("chase_patterns", 2),
         ("lightning_storm", 6),
+        ("pendulum_swing", 6),
         ("sparkle_burst", 6),
+        ("heartbeat", 4),
         ("fire_flicker", 8),
+        ("spectrum_analyzer", 8),
         ("matrix_rain", 3),
+        ("traffic_light", 2),
         ("sine_wave_pulse", 2),
-        ("binary_counter", 8),
+        ("binary_counter", 32),
         ("sos_signal", 1),
     ]
     
