@@ -9,3 +9,8 @@ from luma.oled.device import ssd1306
 # Setup OLED
 serial = i2c(port=1, address=0x3C)
 device = ssd1306(serial, width=128, height=64)
+
+#get weather info
+def get_weather_stats():
+    try:
+        
