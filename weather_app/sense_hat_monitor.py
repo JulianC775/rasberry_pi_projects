@@ -14,4 +14,7 @@ device = ssd1306(serial, width=128, height=64)
 def get_weather_stats():
     try:
         
-        
+
+
+def get_sense_hat_data():
+    try:
